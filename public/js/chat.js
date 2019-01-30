@@ -32,7 +32,7 @@ socket.on('disconnect', function() {
 });
 
 socket.on('newMessage', function(message) {
-    var formattedTime = moment(message.createdAt).format('hh:mm a');
+    var formattedTime = moment(message.createdAt).format('HH:mm');
 
     var template = jQuery('#message-template').html();
     var html =   Mustache.render(template, {
@@ -55,7 +55,7 @@ socket.on('updateUserList', function (users) {
 });
 
 socket.on('newLocationMessage', function (message) {
-    var formattedTime = moment(message.createdAt).format('hh:mm a');
+    var formattedTime = moment(message.createdAt).format('HH:mm');
     var template = jQuery('#location-message-template').html();
     var html = Mustache.render(template, {
         url: message.url,
