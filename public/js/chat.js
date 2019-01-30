@@ -38,6 +38,7 @@ socket.on('newMessage', function(message) {
     var html =   Mustache.render(template, {
         text: message.text,
         name: message.name,
+        color: message.color,
         createdAt: formattedTime
     });
     jQuery('#messages-list').append(html);
@@ -56,7 +57,7 @@ socket.on('updateUserList', function (users) {
 socket.on('newLocationMessage', function (message) {
     var formattedTime = moment(message.createdAt).format('hh:mm a');
     var template = jQuery('#location-message-template').html();
-    var html =   Mustache.render(template, {
+    var html = Mustache.render(template, {
         url: message.url,
         name: message.name,
         createdAt: formattedTime
