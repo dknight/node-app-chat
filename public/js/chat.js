@@ -1,7 +1,30 @@
 let socket = io();
 
+function scrollToBottom () {
+  var messages = jQuery('#messages-list');
+  var newMessage = messages.children('li:last-child')
+  var clientHeight = messages.prop('clientHeight');
+  var scrollTop = messages.prop('scrollTop');
+  var scrollHeight = messages.prop('scrollHeight');
+  var newMessageHeight = newMessage.innerHeight();
+  var lastMessageHeight = newMessage.prev().innerHeight();
+
+  if (clientHeight + scrollTop + newMessageHeight + lastMessageHeight >= scrollHeight) {
+      messages.scrollTop(scrollHeight);
+  }
+}
+
 socket.on('connect', function() {
-  console.log('Connected to server');
+  var params = deparam(window.location.search.substring(1));
+  
+  socket.emit('join', params, function (err) {
+      if (err) {
+        alert(err);
+        window.location.href = '/';
+      } else {
+        console.log('No error');
+      }
+  });
 });
 
 socket.on('disconnect', function() {
@@ -18,6 +41,16 @@ socket.on('newMessage', function(message) {
         createdAt: formattedTime
     });
     jQuery('#messages-list').append(html);
+    scrollToBottom();
+});
+
+socket.on('updateUserList', function (users) {
+    var $ul = jQuery('<ul></ul>');
+    users.forEach(function (user) {
+        const $li = jQuery('<li></li>').text(user)
+        $ul.append($li);
+    });
+    jQuery('#users').html($ul);
 });
 
 socket.on('newLocationMessage', function (message) {
@@ -29,6 +62,7 @@ socket.on('newLocationMessage', function (message) {
         createdAt: formattedTime
     });
     jQuery('#messages-list').append(html);
+    scrollToBottom();
 });
 
 jQuery(function ($) {
@@ -56,10 +90,16 @@ jQuery(function ($) {
     var $messageTextbox = $('#message')
     $('#message-form').on('submit', function (e) {
         e.preventDefault();
+
+        var msg = $messageTextbox.val();
+        if (!msg) {
+            return;
+        }
     
+        $messageTextbox.focus();
         socket.emit('createMessage', {
             name: 'User',
-            text: $messageTextbox.val()
+            text: msg
         }, function () {
             $messageTextbox.val('');
         });
